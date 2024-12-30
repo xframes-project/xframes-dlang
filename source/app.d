@@ -2,6 +2,7 @@ import std.stdio;
 import asdf;
 import std.array;
 import std.conv;
+import std.string : toStringz;
 
 enum ImGuiCol {
     Text,
@@ -73,6 +74,48 @@ struct HEXA {
     }
 }
 
+struct Node {
+	int id;
+	bool root;
+
+	void serialize(Node)(ref Node serializer)
+    {
+        auto state = serializer.structBegin();
+
+		serializer.putKey("type");
+		serializer.putValue("node");
+
+		serializer.putKey("id");
+		serializer.putValue(id);
+
+		serializer.putKey("root");
+		serializer.putValue(root);
+		
+        serializer.structEnd(state);
+    }
+}
+
+struct UnformattedText {
+	int id;
+	string text;
+
+	void serialize(Node)(ref Node serializer)
+    {
+        auto state = serializer.structBegin();
+
+		serializer.putKey("type");
+		serializer.putValue("unformatted-text");
+
+		serializer.putKey("id");
+		serializer.putValue(id);
+
+		serializer.putKey("text");
+		serializer.putValue(text);
+		
+        serializer.structEnd(state);
+    }
+}
+
 struct ThemeColors {
     string[string] colors;
 }
@@ -124,6 +167,15 @@ extern(C) {
         OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged,
         OnClickCb onClick
     );
+
+	void setElement(
+        const(char)* elementJson
+    );
+
+	void setChildren(
+		int id,
+        const(char)* childrenJson
+    );
 }
 
 version(Linux) {
@@ -135,7 +187,23 @@ version(Windows) {
 }
 
 extern(C) void onInitCallback() {
-    // writeln("Initialization complete!");
+    writeln("Initialization complete!");
+
+	Node node = Node(0, true);
+	UnformattedText unformattedText = UnformattedText(1, "Hello, world");
+
+	auto nodeJson = node.serializeToJson();
+	auto unformattedTextJson = unformattedText.serializeToJson();
+
+	setElement(nodeJson.toStringz);
+	setElement(unformattedTextJson.toStringz);
+
+	int[] intArray;
+	intArray ~= 1;
+
+	auto childrenIdsJson = intArray.serializeToJson();
+	setChildren(0, childrenIdsJson.toStringz);
+
 }
 
 extern(C) void onTextChangedCallback(int id, const(char)* value) {
@@ -270,9 +338,9 @@ void main()
     string rawStyleOverrideDefinitions = themeJson;
 
 	init(
-        assetsBasePath.ptr, 
-        rawFontDefinitions.ptr, 
-        rawStyleOverrideDefinitions.ptr,
+        assetsBasePath.toStringz, 
+        rawFontDefinitions.toStringz, 
+        rawStyleOverrideDefinitions.toStringz,
         &onInitCallback,
         &onTextChangedCallback,
         &onComboChangedCallback,
@@ -282,7 +350,6 @@ void main()
         &onClickCallback
     );
 
-	writeln("Yo");
-
-	stdin.readf("d");
+	writeln("Press enter to exit.");
+	stdin.readln();
 }
