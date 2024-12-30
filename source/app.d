@@ -103,6 +103,68 @@ struct FontDefs {
     FontDef[] defs;
 }
 
+extern(C) {
+	alias OnInitCb = void function();
+	alias OnTextChangedCb = void function(int, const(char)*);
+	alias OnComboChangedCb = void function(int, int);
+	alias OnNumericValueChangedCb = void function(int, float);
+	alias OnBooleanValueChangedCb = void function(int, bool);
+	alias OnMultipleNumericValuesChangedCb = void function(int, const(float)*, int);
+	alias OnClickCb = void function(int);
+
+	void init(
+        const(char)* assetsBasePath,
+        const(char)* rawFontDefinitions,
+        const(char)* rawStyleOverrideDefinitions,
+        OnInitCb onInit,
+        OnTextChangedCb onTextChanged,
+        OnComboChangedCb onComboChanged,
+        OnNumericValueChangedCb onNumericValueChanged,
+        OnBooleanValueChangedCb onBooleanValueChanged,
+        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged,
+        OnClickCb onClick
+    );
+}
+
+version(Linux) {
+    pragma(lib, "xframesshared.so");
+}
+
+version(Windows) {
+    pragma(lib, "xframesshared.lib");
+}
+
+extern(C) void onInitCallback() {
+    // writeln("Initialization complete!");
+}
+
+extern(C) void onTextChangedCallback(int id, const(char)* value) {
+    writeln("Text changed: ", value);
+}
+
+extern(C) void onComboChangedCallback(int id, int value) {
+    writeln("Combo changed: ", value);
+}
+
+extern(C) void onNumericValueChangedCallback(int id, float value) {
+    writeln("Numeric value changed: ", value);
+}
+
+extern(C) void onBooleanValueChangedCallback(int id, bool value) {
+    writeln("Boolean value changed: ", value);
+}
+
+extern(C) void onMultipleNumericValuesChangedCallback(int id, const(float)* values, int numValues) {
+    writeln("Multiple numeric values changed: ");
+    foreach (i; 0 .. numValues) {
+        writeln(values[i]);
+    }
+}
+
+extern(C) void onClickCallback(int id) {
+    writeln("Button clicked: ", id);
+}
+
 void main()
 {
 	ThemeColors themeColors;
@@ -202,4 +264,25 @@ void main()
 	auto fontDefsJson = fontDefs.serializeToJson();
 
 	writeln(fontDefsJson);
+
+	string assetsBasePath = "./assets";
+    string rawFontDefinitions = fontDefsJson;
+    string rawStyleOverrideDefinitions = themeJson;
+
+	init(
+        assetsBasePath.ptr, 
+        rawFontDefinitions.ptr, 
+        rawStyleOverrideDefinitions.ptr,
+        &onInitCallback,
+        &onTextChangedCallback,
+        &onComboChangedCallback,
+        &onNumericValueChangedCallback,
+        &onBooleanValueChangedCallback,
+        &onMultipleNumericValuesChangedCallback,
+        &onClickCallback
+    );
+
+	writeln("Yo");
+
+	stdin.readf("d");
 }
