@@ -1,0 +1,12 @@
+{
+	"authors": [
+		"andreamancuso"
+	],
+	"copyright": "-",
+	"description": "XFrames for the D programming language",
+	"license": "MIT",
+	"name": "xframes-dlang",
+	"dependencies": {
+    	"asdf": "~>0.7.17"
+  	}
+}
