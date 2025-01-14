@@ -8,5 +8,7 @@
 	"name": "xframes-dlang",
 	"dependencies": {
     	"asdf": "~>0.7.17"
-  	}
+  	},
+	"libs": ["xframesshared"],
+	"lflags": ["-L./"]
 }
