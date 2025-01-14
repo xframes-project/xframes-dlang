@@ -5,6 +5,11 @@ XFrames for the D programming language (LDC compiler)
 
 ### Install the D compiler (ldc2)
 
+#### Ubuntu
+
+Download an official release from https://github.com/ldc-developers/ldc/tags
+You may want to add the `bin` folder to your `PATH`.
+
 #### Windows
 
 `choco install ldc`
